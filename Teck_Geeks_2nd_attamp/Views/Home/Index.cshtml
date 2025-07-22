@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-6">
                 <div class="mb-3">
-                    <h2>Simple CRUD Operation</h2>
+                    @*<h2>Simple CRUD Operation</h2>*@
                     <label for="Fname" class="form-label">First Name</label>
                     <input type="text" class="form-control" id="Fname" placeholder="Enter First Name">
                 </div>
@@ -30,10 +30,10 @@
         </div>
 
         <button type="submit" class="btn btn-primary" onclick="fnInsert()">Submit</button>
-        <button type="button" class="btn btn-success" onclick="updateData()">Update</button>
+        <button type="button" class="btn btn-success" id="btnUpdate" onclick="updateData()" disabled>Update</button>
 
-        <input type="hidden" id="hiddenId" /> 
-        <script src="~/Scripts/CRUD/Crud.js"></script>
+        <input type="hidden" id="hiddenId" />
+
     </form>
     <hr />
     <hr />
@@ -44,5 +44,127 @@
 </div>
 
 @section Scripts{
-    
+    <script>
+        $(document).ready(function () {
+            ViewData();
+            $('#btnUpdate').prop('disabled', true); // Disable update button initially
+        });
+
+        function fnInsert() {
+            var FirstName = $("#Fname").val();
+            var LastName = $("#Lname").val();
+            var Mobno = $("#Mobno").val();
+            var Address = $("#Address").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/InsertFields/",
+                datatype: "json",
+                contentType: "application/json charset=utf-8",
+                data: JSON.stringify({ FirstName: FirstName, LastName: LastName, Mobno: Mobno, Address: Address }),
+                success: function (json) {
+
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+        // Global function
+        function ViewData() {
+            $.ajax({
+                type: "POST",
+                url: "/Home/ViewData/",
+                datatype: "json",
+                contentType: "application/json charset=utf-8",
+                data: JSON.stringify({}),
+                success: function (json1) {
+                    var tableload = json1.html;
+                    var dataset = eval("[" + tableload + "]");
+
+                    $('#ViewValues').DataTable({
+                        ordering: false,
+                        destroy: true,
+                        data: dataset,
+                        columns: [
+                            { title: "Sl" },
+                            { title: "First Name" },
+                            { title: "Last Name" },
+                            { title: "Mobile Number" },
+                            { title: "Address" },
+                            { title: "Action" }
+                        ]
+                    });
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+
+        // Global delete function
+        function fnDelete(id) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/DeleteData/",
+                datatype: "json",
+                contentType: "application/json charset=utf-8",
+                data: JSON.stringify({ id: id }),
+                success: function (json) {
+                    $('#ViewValues').DataTable().destroy();
+                    ViewData(); // Now this works ✅
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+
+
+        function fnEdit(id) {
+            alert("Edit clicked: " + id);
+            $.ajax({
+                type: "POST",
+                url: "/Home/EditData",
+                datatype: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ id: id }),
+                success: function (data) {
+                    $('#Fname').val(data.FirstName);
+                    $('#Lname').val(data.LastName);
+                    $('#Mobno').val(data.MobileNumber);
+                    $('#Address').val(data.Address);
+                    $('#hiddenId').val(data.Id);
+                    // Enable the Update button
+                    $('#btnUpdate').prop('disabled', false);
+                },
+                error: function (err) {
+                    alert("Error loading data for editing.");
+                }
+            });
+        }
+
+        function updateData() {
+            var updatedRecord = {
+                Id: $('#hiddenId').val(),
+                Fname: $('#Fname').val(),
+                Lname: $('#Lname').val(), // was LnName — fixed
+                Mobno: $('#Mobno').val(),
+                Address: $('#Address').val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/UpdateData",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(updatedRecord),
+                success: function (res) {
+                    alert("Updated successfully!");
+                    ViewData();
+                },
+                error: function () {
+                    alert("Error while updating!");
+                }
+            });
+        }
+    </script>
 }

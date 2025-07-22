@@ -141,7 +141,7 @@ namespace Teck_Geeks_2nd_attamp.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateData(int id, string firstname, string lastname, string mobilenumber, string address)
+        public JsonResult UpdateData(int id, string fname, string lname, string mobno, string address)
         {
             try
             {
@@ -151,9 +151,9 @@ namespace Teck_Geeks_2nd_attamp.Controllers
                     SqlCommand cmd = new SqlCommand("UPDATE crudtbl SET FirstName = @FirstName, LastName = @LastName, MobileNumber = @MobileNumber, Address = @Address WHERE Id = @Id", con);
 
                     cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@FirstName", firstname);
-                    cmd.Parameters.AddWithValue("@LastName", lastname);
-                    cmd.Parameters.AddWithValue("@MobileNumber", mobilenumber);
+                    cmd.Parameters.AddWithValue("@FirstName", fname);
+                    cmd.Parameters.AddWithValue("@LastName", lname);
+                    cmd.Parameters.AddWithValue("@MobileNumber", mobno);
                     cmd.Parameters.AddWithValue("@Address", address);
 
                     cmd.ExecuteNonQuery();

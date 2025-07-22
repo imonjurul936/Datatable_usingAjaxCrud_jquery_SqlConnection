@@ -1,4 +1,9 @@
-﻿function fnInsert() {
+﻿$(document).ready(function () {
+    ViewData();
+    $('#btnUpdate').prop('disabled', true); // Disable update button initially
+});
+
+function fnInsert() {
     var FirstName = $("#Fname").val();
     var LastName = $("#Lname").val();
     var Mobno = $("#Mobno").val();
@@ -67,52 +72,50 @@ function fnDelete(id) {
     });
 }
 
-// Call it when DOM is ready
-$(document).ready(function () {
-    ViewData();
-});
 
 function fnEdit(id) {
+    alert("Edit clicked: " + id);
     $.ajax({
         type: "POST",
-        url: "/Home/EditData", // Controller action
+        url: "/Home/EditData",
         datatype: "json",
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify({ id: id }),
         success: function (data) {
-            // Populate form fields with returned data
-            $('#FirstName').val(data.FirstName);
-            $('#LastName').val(data.LastName);
-            $('#MobileNumber').val(data.MobileNumber);
+            $('#Fname').val(data.FirstName);
+            $('#Lname').val(data.LastName);
+            $('#Mobno').val(data.MobileNumber);
             $('#Address').val(data.Address);
-            $('#hiddenId').val(data.Id); // hidden field to hold the record id for update
+            $('#hiddenId').val(data.Id);
+            // Enable the Update button
+            $('#btnUpdate').prop('disabled', false);
         },
         error: function (err) {
             alert("Error loading data for editing.");
         }
     });
 }
+
 function updateData() {
+    var updatedRecord = {
+        Id: $('#hiddenId').val(),
+        Fname: $('#Fname').val(),
+        Lname: $('#Lname').val(), // was LnName — fixed
+        Mobno: $('#Mobno').val(),
+        Address: $('#Address').val()
+    };
+
     $.ajax({
         type: "POST",
         url: "/Home/UpdateData",
-        data: {
-            id: $('#hiddenId').val(),
-            firstname: $('#FirstName').val(),
-            lastname: $('#LastName').val(),
-            mobilenumber: $('#MobileNumber').val(),
-            address: $('#Address').val()
-        },
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(updatedRecord),
         success: function (res) {
             alert("Updated successfully!");
-            ViewData(); // Refresh your data
+            ViewData();
         },
         error: function () {
             alert("Error while updating!");
         }
     });
 }
-
-
-
-
